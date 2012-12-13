@@ -62,15 +62,4 @@ Then wrap this in another query that applies the rank function:
 <tr<td>Sprout</td><td>Veg</td><td>1.75</td><td>2</td></tr>
 </table>
 
-+--------+----------+-------+------+
-| item   | category | price | rank |
-+--------+----------+-------+------+
-| Apple  | Fruit    | 0.25  | 1    |
-| Orange | Fruit    | 0.30  | 2    |
-| Kiwi   | Fruit    | 0.30  | 2    |
-| Banana | Fruit    | 0.75  | 4    |
-| Carrot | Veg      | 0.20  | 1    |
-| Sprout | Veg      | 1.75  | 2    |
-+--------+----------+-------+------+
-
 Notice that rank() takes the price column as the first parameter, the rest of the parameters are used to determine the row groupings.

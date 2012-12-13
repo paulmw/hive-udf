@@ -33,16 +33,15 @@ For example, imagine we have a table such as the following:
 
 select * from items;
 
-+--------+----------+-------+
-| item   | category | price |
-+--------+----------+-------+
-| Orange | Fruit    | 0.30  |
-| Apple  | Fruit    | 0.25  |
-| Banana | Fruit    | 0.75  |
-| Carrot | Veg      | 0.20  |
-| Sprout | Veg      | 1.75  |
-| Kiwi   | Fruit    | 0.30  |
-+--------+----------+-------+
+<table>
+<tr><th>item</th><th>category</th><th>price</th></tr>
+<tr<td>Orange</td><td>Fruit</td><td>0.30</td></tr>
+<tr<td>Apple</td><td>Fruit</td><td>0.25</td></tr>
+<tr<td>Banana</td><td>Fruit</td><td>0.75</td></tr>
+<tr<td>Carrot</td><td>Veg</td><td>0.20</td></tr>
+<tr<td>Sprout</td><td>Veg</td><td>1.75</td></tr>
+<tr<td>Kiwi</td><td>Fruit</td><td>0.30</td></tr>
+</table>
 
 To use the rank function, prepare the data with an inner query:
 
@@ -52,6 +51,16 @@ Then wrap this in another query that applies the rank function:
 
   select item, category, price, rank(price, category) from (
     select item, category, price from items distribute by category sort by category, price) inner;
+
+<table>
+<tr><th>item</th><th>category</th><th>price</th><th>rank</th></tr>
+<tr<td>Apple</td><td>Fruit</td><td>0.25</td><td>1</td></tr>
+<tr<td>Orange</td><td>Fruit</td><td>0.30</td><td>2</td></tr>
+<tr<td>Kiwi</td><td>Fruit</td><td>0.30</td><td>2</td></tr>
+<tr<td>Banana</td><td>Fruit</td><td>0.75</td><td>4</td></tr>
+<tr<td>Carrot</td><td>Veg</td><td>0.20</td><td>1</td></tr>
+<tr<td>Sprout</td><td>Veg</td><td>1.75</td><td>2</td></tr>
+</table>
 
 +--------+----------+-------+------+
 | item   | category | price | rank |

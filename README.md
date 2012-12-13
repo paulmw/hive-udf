@@ -35,12 +35,12 @@ select * from items;
 
 <table>
 <tr><th>item</th><th>category</th><th>price</th></tr>
-<tr<td>Orange</td><td>Fruit</td><td>0.30</td></tr>
-<tr<td>Apple</td><td>Fruit</td><td>0.25</td></tr>
-<tr<td>Banana</td><td>Fruit</td><td>0.75</td></tr>
-<tr<td>Carrot</td><td>Veg</td><td>0.20</td></tr>
-<tr<td>Sprout</td><td>Veg</td><td>1.75</td></tr>
-<tr<td>Kiwi</td><td>Fruit</td><td>0.30</td></tr>
+<tr><td>Orange</td><td>Fruit</td><td>0.30</td></tr>
+<tr><td>Apple</td><td>Fruit</td><td>0.25</td></tr>
+<tr><td>Banana</td><td>Fruit</td><td>0.75</td></tr>
+<tr><td>Carrot</td><td>Veg</td><td>0.20</td></tr>
+<tr><td>Sprout</td><td>Veg</td><td>1.75</td></tr>
+<tr><td>Kiwi</td><td>Fruit</td><td>0.30</td></tr>
 </table>
 
 To use the rank function, prepare the data with an inner query:
@@ -54,12 +54,12 @@ Then wrap this in another query that applies the rank function:
 
 <table>
 <tr><th>item</th><th>category</th><th>price</th><th>rank</th></tr>
-<tr<td>Apple</td><td>Fruit</td><td>0.25</td><td>1</td></tr>
-<tr<td>Orange</td><td>Fruit</td><td>0.30</td><td>2</td></tr>
-<tr<td>Kiwi</td><td>Fruit</td><td>0.30</td><td>2</td></tr>
-<tr<td>Banana</td><td>Fruit</td><td>0.75</td><td>4</td></tr>
-<tr<td>Carrot</td><td>Veg</td><td>0.20</td><td>1</td></tr>
-<tr<td>Sprout</td><td>Veg</td><td>1.75</td><td>2</td></tr>
+<tr><td>Apple</td><td>Fruit</td><td>0.25</td><td>1</td></tr>
+<tr><td>Orange</td><td>Fruit</td><td>0.30</td><td>2</td></tr>
+<tr><td>Kiwi</td><td>Fruit</td><td>0.30</td><td>2</td></tr>
+<tr><td>Banana</td><td>Fruit</td><td>0.75</td><td>4</td></tr>
+<tr><td>Carrot</td><td>Veg</td><td>0.20</td><td>1</td></tr>
+<tr><td>Sprout</td><td>Veg</td><td>1.75</td><td>2</td></tr>
 </table>
 
 Notice that rank() takes the price column as the first parameter, the rest of the parameters are used to determine the row groupings.

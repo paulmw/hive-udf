@@ -1,7 +1,27 @@
-package com.cloudera.hive.examples;
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package com.cloudera.hive.udf.functions.windowing;
+
+import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
+import org.apache.hadoop.hive.ql.udf.UDFType;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
@@ -9,44 +29,34 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory.Obje
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 
-public class Rank extends GenericUDF {
+/**
+ * This UDF provides a row_number() function.
+ */
+@Description(name = "row_number", value = "_FUNC_(value, partition columns ...) - Returns the row_number of a row within a partitioned, sorted window.")
+@UDFType(deterministic = false, stateful = true)
+public class RowNumber extends GenericUDF {
 
 	private long counter;
-	private long nextCounter;
 	private Object[] previousKey;
 	private ObjectInspector[] ois;
 
 	@Override
 	public Object evaluate(DeferredObject[] currentKey) throws HiveException {
-		if (!sameGroup(currentKey)) {
+		if (!sameGroupAsPrevious(currentKey)) {
 			this.counter = 0;
-			this.nextCounter = 0;
 			copyToPreviousKey(currentKey);
-			++this.nextCounter;
-			return new Long(++this.counter);
-		} else {
-			// Same group. Same value as well?
-			if (!sameValue(currentKey)) {
-				this.counter = this.nextCounter;
-				copyToPreviousKey(currentKey);
-				++this.nextCounter;
-				return new Long(++this.counter);
-			} else {
-				copyToPreviousKey(currentKey);
-				++this.nextCounter;
-				return new Long(this.counter);
-			}
 		}
+		return new Long(++this.counter);
 	}
 
 	@Override
 	public String getDisplayString(String[] currentKey) {
-		return "Rank";
+		return "RowNumber";
 	}
 
 	@Override
-	public ObjectInspector initialize(ObjectInspector[] arg0) throws UDFArgumentException {
-		ois=arg0;
+	public ObjectInspector initialize(ObjectInspector[] ois) throws UDFArgumentException {
+		this.ois = ois;
 		return PrimitiveObjectInspectorFactory.javaLongObjectInspector;
 	}
 
@@ -74,7 +84,7 @@ public class Rank extends GenericUDF {
 	 * @return - true if both are same else false
 	 * @throws HiveException
 	 */
-	private boolean sameGroup(DeferredObject[] currentKey) throws HiveException {
+	private boolean sameGroupAsPrevious(DeferredObject[] currentKey) throws HiveException {
 		boolean status = false;
 
 		//if both are null then we can classify as same
@@ -85,7 +95,7 @@ public class Rank extends GenericUDF {
 		//if both are not null and there legnth as well as
 		//individual elements are same then we can classify as same
 		if (currentKey != null && previousKey != null && currentKey.length == previousKey.length) {
-			for (int index = 1; index < currentKey.length; index++) {
+			for (int index = 0; index < currentKey.length; index++) {
 
 				if (ObjectInspectorUtils.compare(currentKey[index].get(), this.ois[index],
 						previousKey[index],
@@ -95,39 +105,6 @@ public class Rank extends GenericUDF {
 				}
 
 			}
-			status = true;
-		}
-		return status;
-	}
-
-	/**
-	 * This will help us compare the currentKey and previousKey objects.
-	 *
-	 * @param currentKey
-	 * @return - true if both are same else false
-	 * @throws HiveException
-	 */
-	private boolean sameValue(DeferredObject[] currentKey) throws HiveException {
-		boolean status = false;
-
-		//if both are null then we can classify as same
-		if (currentKey == null && previousKey == null) {
-			status = true;
-		}
-
-		//if both are not null and there legnth as well as
-		//individual elements are same then we can classify as same
-		if (currentKey != null && previousKey != null && currentKey.length == previousKey.length) {
-			//				for (int index = 1; index < currentKey.length; index++) {
-
-			if (ObjectInspectorUtils.compare(currentKey[0].get(), this.ois[0],
-					previousKey[0],
-					ObjectInspectorFactory.getReflectionObjectInspector(previousKey[0].getClass(), ObjectInspectorOptions.JAVA)) != 0) {
-
-				return false;
-			}
-
-			//				}
 			status = true;
 		}
 		return status;

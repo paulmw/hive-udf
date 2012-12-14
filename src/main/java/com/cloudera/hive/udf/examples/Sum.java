@@ -16,25 +16,40 @@
  * limitations under the License.
  */
 
-package com.cloudera.hive.examples;
+package com.cloudera.hive.udf.examples;
 
-import org.apache.hadoop.hive.ql.exec.Description;
-import org.apache.hadoop.hive.ql.exec.UDF;
+import org.apache.hadoop.hive.ql.exec.UDAF;
+import org.apache.hadoop.hive.ql.exec.UDAFEvaluator;
 import org.apache.hadoop.hive.ql.udf.UDFType;
-import org.apache.hadoop.io.LongWritable;
 
-@Description(name = "row_number", value = "_FUNC_() - Returns an incremental row number starting from 1")
-@UDFType(deterministic = false, stateful = true)
-// See also UDFRowSequence in Hive
-public class RowNumber extends UDF {
-	  private LongWritable result = new LongWritable();
+@UDFType()
+public class Sum extends UDAF {
 
-	  public RowNumber() {
-		  result.set(0);
-	  }
+	public static class SumIntUDAFEvaluator implements UDAFEvaluator {
 
-	  public LongWritable evaluate() {
-		  result.set(result.get() + 1);
-		  return result;
-	  }
+		private int result;
+
+		public void init() {
+			result = 0;
+		}
+
+		public boolean iterate(int value) {
+			result += value;
+			return true;
+		}
+
+		public boolean merge(int other) {
+			return iterate(other);
+		}
+		
+		public int terminatePartial() {
+			return result;
+		}
+		
+		public int terminate() {
+			return result;
+		}
+		
+	}
+	
 }

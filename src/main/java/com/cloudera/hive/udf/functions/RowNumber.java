@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.cloudera.hive.udf.functions.windowing;
+package com.cloudera.hive.udf.functions;
 
 import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
@@ -30,11 +30,11 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 
 /**
- * This UDF provides a dense_rank() function.
+ * This UDF provides a row_number() function.
  */
-@Description(name = "rank", value = "_FUNC_(value, partition columns ...) - Returns the dense_rank of a value within a partitioned, sorted window.")
+@Description(name = "row_number", value = "_FUNC_(value, partition columns ...) - Returns the row_number of a row within a partitioned, sorted window.")
 @UDFType(deterministic = false, stateful = true)
-public class DenseRank extends GenericUDF {
+public class RowNumber extends GenericUDF {
 
 	private long counter;
 	private Object[] previousKey;
@@ -42,30 +42,21 @@ public class DenseRank extends GenericUDF {
 
 	@Override
 	public Object evaluate(DeferredObject[] currentKey) throws HiveException {
-		if (!sameGroup(currentKey)) {
+		if (!sameGroupAsPrevious(currentKey)) {
 			this.counter = 0;
 			copyToPreviousKey(currentKey);
-			return new Long(++this.counter);
-		} else {
-			// Same group. Same value as well?
-			if (!sameValue(currentKey)) {
-				copyToPreviousKey(currentKey);
-				return new Long(++this.counter);
-			} else {
-				copyToPreviousKey(currentKey);
-				return new Long(this.counter);
-			}
 		}
+		return new Long(++this.counter);
 	}
 
 	@Override
 	public String getDisplayString(String[] currentKey) {
-		return "DenseRank";
+		return "RowNumber";
 	}
 
 	@Override
-	public ObjectInspector initialize(ObjectInspector[] arg0) throws UDFArgumentException {
-		ois=arg0;
+	public ObjectInspector initialize(ObjectInspector[] ois) throws UDFArgumentException {
+		this.ois = ois;
 		return PrimitiveObjectInspectorFactory.javaLongObjectInspector;
 	}
 
@@ -93,7 +84,7 @@ public class DenseRank extends GenericUDF {
 	 * @return - true if both are same else false
 	 * @throws HiveException
 	 */
-	private boolean sameGroup(DeferredObject[] currentKey) throws HiveException {
+	private boolean sameGroupAsPrevious(DeferredObject[] currentKey) throws HiveException {
 		boolean status = false;
 
 		//if both are null then we can classify as same
@@ -104,7 +95,7 @@ public class DenseRank extends GenericUDF {
 		//if both are not null and there legnth as well as
 		//individual elements are same then we can classify as same
 		if (currentKey != null && previousKey != null && currentKey.length == previousKey.length) {
-			for (int index = 1; index < currentKey.length; index++) {
+			for (int index = 0; index < currentKey.length; index++) {
 
 				if (ObjectInspectorUtils.compare(currentKey[index].get(), this.ois[index],
 						previousKey[index],
@@ -114,39 +105,6 @@ public class DenseRank extends GenericUDF {
 				}
 
 			}
-			status = true;
-		}
-		return status;
-	}
-
-	/**
-	 * This will help us compare the currentKey and previousKey objects.
-	 *
-	 * @param currentKey
-	 * @return - true if both are same else false
-	 * @throws HiveException
-	 */
-	private boolean sameValue(DeferredObject[] currentKey) throws HiveException {
-		boolean status = false;
-
-		//if both are null then we can classify as same
-		if (currentKey == null && previousKey == null) {
-			status = true;
-		}
-
-		//if both are not null and there legnth as well as
-		//individual elements are same then we can classify as same
-		if (currentKey != null && previousKey != null && currentKey.length == previousKey.length) {
-			//				for (int index = 1; index < currentKey.length; index++) {
-
-			if (ObjectInspectorUtils.compare(currentKey[0].get(), this.ois[0],
-					previousKey[0],
-					ObjectInspectorFactory.getReflectionObjectInspector(previousKey[0].getClass(), ObjectInspectorOptions.JAVA)) != 0) {
-
-				return false;
-			}
-
-			//				}
 			status = true;
 		}
 		return status;

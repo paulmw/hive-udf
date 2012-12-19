@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.cloudera.hive.udf.functions.windowing;
+package com.cloudera.hive.udf.functions;
 
 import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
@@ -108,7 +108,7 @@ public class FirstValue extends GenericUDF {
 		//if both are not null and their lengths as well as
 		//individual elements are same then we can classify as same
 		if (currentKey != null && previous != null && currentKey.length == previous.length) {
-			for (int index = 1; index < currentKey.length; index++) { // Note the 1 here!
+			for (int index = 1; index < currentKey.length; index++) { // Note the 1 here! INDEX 0 is the value, INDEX 1+ are the partition columns
 
 				if (ObjectInspectorUtils.compare(currentKey[index].get(), this.ois[index],
 						previous[index],

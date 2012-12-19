@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.cloudera.hive.udf.functions.windowing;
+package com.cloudera.hive.udf.functions;
 
 import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
